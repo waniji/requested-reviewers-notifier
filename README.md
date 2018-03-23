@@ -20,7 +20,7 @@ notifier.pl --config=config.js
 
 ```json
 {
-    github_repos": [
+    "github_repos": [
         "waniji/requested-reviewers-notifier",
         "waniji/dotfiles"
     ],
