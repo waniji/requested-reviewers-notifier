@@ -54,20 +54,13 @@ for my $github_repo (@github_repos) {
         next unless scalar(@$res);
         my @reviewers = map { sprintf ":%s:", $_->{login} } @$res;
         $review_count{$_}++ for @reviewers;
-        push @result, sprintf(
-            "[%s] %s %s %s :point_right: %s",
-            $pull->{created_at},
-            sprintf("<https://github.com/%s/%s/pull/%d|%s/%s#%d>", $account, $repo, $pull->{number}, $account, $repo, $pull->{number}),
-            sprintf(":%s:", $pull->{user}->{login}),
-            encode_utf8($pull->{title}),
-            join(" ", @reviewers),
-        );
+        push @result, generate_pull_request_message($account, $repo, $pull, \@reviewers);
     }
 }
 
 exit unless scalar(@result);
 
-push @result, join(", ", map { sprintf("%s => %d", $_, $review_count{$_}) } sort { $review_count{$b} <=> $review_count{$a} } keys %review_count);
+push @result, generate_reviewer_count_message(\%review_count);
 
 my $slack = WebService::Slack::WebApi->new(token => $slack_token);
 my $posted_message = $slack->chat->post_message(
@@ -77,3 +70,21 @@ my $posted_message = $slack->chat->post_message(
     icon_emoji => ":github:",
 );
 
+sub generate_pull_request_message {
+    my ($account, $repo, $pull, $reviewers) = @_;
+    return sprintf(
+        "[%s] %s %s %s :point_right: %s",
+        $pull->{created_at},
+        sprintf("<https://github.com/%s/%s/pull/%d|%s/%s#%d>", $account, $repo, $pull->{number}, $account, $repo, $pull->{number}),
+        sprintf(":%s:", $pull->{user}->{login}),
+        encode_utf8($pull->{title}),
+        join(" ", @$reviewers),
+    );
+}
+
+sub generate_reviewer_count_message {
+    my $review_count = shift;
+
+    my @sorted = sort { $review_count{$b} <=> $review_count{$a} } keys %$review_count;
+    return join(",", map { sprintf("%s => %d", $_, $review_count{$_}) } @sorted);
+}
