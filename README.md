@@ -4,6 +4,10 @@
 
 リポジトリの Pull Request に指定されている Reviewer を Slack に通知する。
 
+## Screenshot
+
+![Screenshot](https://github.com/waniji/requested-reviewers-notifier/blob/master/screenshot.png)
+
 ## Usage
 
 ```
