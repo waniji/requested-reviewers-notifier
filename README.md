@@ -20,8 +20,6 @@ notifier.pl --config=config.js
 
 ## Config
 
-引数ではなく設定ファイルを使って実行する。
-
 ```json
 {
     "github_repos": [
